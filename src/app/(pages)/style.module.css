@@ -1,0 +1,16 @@
+.panel-game {
+  max-width: 500px;
+  width: 100%;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.board-game > div:nth-child(-n + 6) {
+  border-bottom: 1px solid #ccc;
+}
+
+/* Add border-right for children that are not multiples of 3 */
+.board-game > div:nth-child(3n + 1),
+.board-game > div:nth-child(3n + 2) {
+  border-right: 1px solid #ccc;
+}

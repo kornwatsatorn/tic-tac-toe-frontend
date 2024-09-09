@@ -1,0 +1,24 @@
+{
+  "language": {
+    "th": "Thai",
+    "en": "English"
+  },
+  "button": {
+    "back": "Back",
+    "confirm": "Confirm",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "error": {
+    "format": "Please input field"
+  },
+  "label": {
+    "email": "Email",
+    "password": "Password",
+    "online": "Online Mode",
+    "bot": "Bot Mode",
+    "gameover": "Game Over",
+    "winner": "You win",
+    "loser": "You lose"
+  }
+}
