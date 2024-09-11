@@ -1,31 +1,24 @@
-# Stage 1: Build the Next.js application
-FROM --platform=linux/amd64 node:18-alpine AS builder
+# Use an official Node.js image as the base image
+FROM --platform=linux/amd64 node:18-alpine
 
-# Set working directory
+# Set the working directory in the container
 WORKDIR /app
+
+# Copy package.json and package-lock.json to the working directory
+COPY package*.json ./
+COPY yarn.lock ./
 
 # Install dependencies
-COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-# Copy the rest of the application code
+# Copy the rest of the application code to the working directory
 COPY . .
 
-# Build the application
+# Build the Next.js application
 RUN yarn build
 
-# Stage 2: Serve the Next.js application
-FROM --platform=linux/amd64 node:18-alpine AS runner
-
-WORKDIR /app
-
-# Copy the build output and dependencies from the builder stage
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-
-# Expose port 3000 to the host
+# Expose the port that your Next.js app will run on (default is 3000)
 EXPOSE 3000
 
-# Start the application
+# Set the command to run your application
 CMD ["yarn", "start"]
