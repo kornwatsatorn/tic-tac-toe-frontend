@@ -11,12 +11,12 @@ src/
         └─── [...path]/   # Api SSR dynamic path
         └─── auth/        # Api next-auth
         └─── sse/         # Api for sse (fix path)
-└─── components/          # Component utils
+└─── components/          # Component utility
 └─── context/             # Use context (Language, Loading)
 └─── styles/              # Theme.scss for config color theme, globals.css
 └─── types/               # Interface type (session next-auth)
 └─── utils/               # Utility function and default data
-public                    # Asset file
+public/                   # Asset file
 ```
 
 #### Start App
