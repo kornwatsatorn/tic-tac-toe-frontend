@@ -7,7 +7,8 @@
     "back": "Back",
     "confirm": "Confirm",
     "login": "Login",
-    "logout": "Logout"
+    "logout": "Logout",
+    "register": "Register"
   },
   "error": {
     "format": "Please input field"
@@ -25,6 +26,8 @@
       "you": "You turn",
       "opponent": "Opponent turn"
     },
-    "draw": "Draw"
+    "draw": "Draw",
+    "displayName": "Display Name",
+    "pleaseFill": "Please fill"
   }
 }

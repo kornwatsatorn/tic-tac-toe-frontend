@@ -5,14 +5,14 @@ import Styles from "./style.module.css"
 import classNames from "classnames"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ILoginSchema, LoginSchema } from "./login.zod"
+import { IRegisterSchema, RegisterSchema } from "./register.zod"
 import { useTranslation } from "react-i18next"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useLoading } from "@/context/LoadingContext"
+import ToastWrapper from "@/components/ToastWrapper"
 import { useState } from "react"
 import { getErrorResponseOnCatch } from "@/utils"
-import ToastWrapper from "@/components/ToastWrapper"
 
 const LoginPage = () => {
   // import
@@ -25,25 +25,21 @@ const LoginPage = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ILoginSchema>({
-    resolver: zodResolver(LoginSchema),
+  } = useForm<IRegisterSchema>({
+    resolver: zodResolver(RegisterSchema),
     criteriaMode: "all",
     mode: "all",
     reValidateMode: "onChange",
-    defaultValues: {
-      email: "demo1@gmail.com",
-      password: "demo",
-    },
   })
   const [isShow, setIsShow] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string>("")
 
   // methods
-  const onSubmit = async (data: ILoginSchema) => {
+  const onSubmit = async (data: IRegisterSchema) => {
     try {
       setLoading(true)
 
-      const result = await signIn("app", {
+      const result = await signIn("app-register", {
         ...data,
         redirect: false,
       })
@@ -69,7 +65,9 @@ const LoginPage = () => {
     <>
       <div className="d-flex justify-content-center align-items-center height-same-outer">
         <Card className={classNames(Styles.login, "rounded-lg")}>
-          <Card.Header className="text-center">{t("button.login")}</Card.Header>
+          <Card.Header className="text-center">
+            {t("button.register")}
+          </Card.Header>
           <Card.Body>
             <Form onSubmit={handleSubmit(onSubmit)}>
               <Form.Group className="mb-3" controlId="formBasicEmail">
@@ -101,22 +99,38 @@ const LoginPage = () => {
                   </Form.Control.Feedback>
                 )}
               </Form.Group>
+
+              <Form.Group className="mb-3" controlId="formDisplayname">
+                <Form.Label>{t("label.displayName")}</Form.Label>
+                <Form.Control
+                  type="text"
+                  isInvalid={!!errors.displayName}
+                  {...register("displayName")}
+                  placeholder={t("label.pleaseFill")}
+                />
+                {errors.displayName && (
+                  <Form.Control.Feedback type="invalid">
+                    {errors.displayName.message}
+                  </Form.Control.Feedback>
+                )}
+              </Form.Group>
               <Button variant="primary" type="submit" className="form-control">
-                {t("button.login")}
+                {t("button.register")}
               </Button>
               <hr />
               <Button
                 variant="secondary"
                 type="button"
                 className="form-control"
-                onClick={() => router.push("/register")}
+                onClick={() => router.push("/login")}
               >
-                {t("button.register")}
+                {t("button.login")}
               </Button>
             </Form>
           </Card.Body>
         </Card>
       </div>
+
       <ToastWrapper
         message={<>{errorMessage}</>}
         isShow={isShow}

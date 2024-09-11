@@ -11,6 +11,7 @@ import { useSession } from "next-auth/react"
 import { useTranslation } from "react-i18next"
 import ImageWrapper from "@/components/utils/ImageWrapper"
 import { EMatchType } from "@/utils/enum"
+import ToastWrapper from "@/components/ToastWrapper"
 
 interface IPlayer {
   player1: string
@@ -40,6 +41,7 @@ const HomePage = () => {
   const [isWinner, setIsWinner] = useState<boolean | null | undefined>(
     undefined
   )
+  const [isShow, setIsShow] = useState<boolean>(false)
 
   // methods
   const handleJoinMatch = async (mode: EMatchType = EMatchType.BOT) => {
@@ -165,6 +167,7 @@ const HomePage = () => {
           } else if (data.message === "UPDATE") {
             setReplay(data.match.replay)
           } else if (data.message === "END") {
+            setReplay(data.match.replay)
             // reset
             if (session?.id === data.match.player1) {
               updatePointSession(data.point.player1, data.stack)
@@ -177,10 +180,6 @@ const HomePage = () => {
             } else {
               setIsWinner(data.match.winner === session?.id)
             }
-            setDisabledSlot(true)
-            setReplay([])
-            setMatchId("")
-            setPlayer(null)
             setStep(3)
             eventSource.close()
           } else if (data.message === "CANCEL") {
@@ -215,140 +214,172 @@ const HomePage = () => {
     } else {
       clearInterval(intervalData)
     }
+
+    if (step === 3) {
+      setIsShow(true)
+    }
   }, [step])
+
+  useEffect(() => {
+    if (!isShow) {
+      setDisabledSlot(true)
+      setReplay([])
+      setMatchId("")
+      setPlayer(null)
+      setStep(0)
+    }
+  }, [isShow])
 
   // render
   return (
-    <section className="d-flex justify-content-center align-items-center height-same-outer">
-      {/* button play */}
-      {step === 0 && (
-        <Container>
-          <Row className="gap-3">
-            <Col xs={12} className="text-center">
-              <Button
-                variant="primary"
-                onClick={() => handleJoinMatch(EMatchType.PLAYER)}
-              >
-                {t("label.online")}
-              </Button>
-            </Col>
-            <Col xs={12} className="text-center">
-              <div>
-                <Button variant="secondary" onClick={() => handleJoinMatch()}>
-                  {t("label.bot")}
-                  <span className="d-flex">
-                    {Array(3)
-                      .fill(null)
-                      .map((_, i) => (
-                        <ImageWrapper
-                          key={i}
-                          src="/images/stack.png"
-                          width="20px"
-                          height="20px"
-                          className={classNames(
-                            (session?.user?.botWinStack ?? 0) > i
-                              ? ""
-                              : "grayscale"
-                          )}
-                        />
-                      ))}
-                  </span>
+    <>
+      <section className="d-flex justify-content-center align-items-center height-same-outer">
+        {/* button play */}
+        {step === 0 && (
+          <Container>
+            <Row className="gap-3">
+              <Col xs={12} className="text-center">
+                <Button
+                  variant="primary"
+                  onClick={() => handleJoinMatch(EMatchType.PLAYER)}
+                >
+                  {t("label.online")}
                 </Button>
-              </div>
-            </Col>
-          </Row>
-        </Container>
-      )}
-
-      {step === 1 && (
-        <Container>
-          <Row>
-            <Col xs={12} className="text-center">
-              <h2>{formatTime(timeCounter)}</h2>
-            </Col>
-            <Col xs={12} className="text-center">
-              <Button onClick={handleLeave}>{t("label.leave")}</Button>
-            </Col>
-          </Row>
-        </Container>
-      )}
-
-      {step === 2 && (
-        <Container>
-          <div className={classNames(Style["panel-game"])}>
-            <Row>
-              <Col xs={12} className="d-flex align-items-center flex-column">
-                <h1 className="mb-0">
-                  {!disabledSlot ? (
-                    <>{t("label.turn.you")}</>
-                  ) : (
-                    <>{t("label.turn.opponent")}</>
-                  )}
-                </h1>
-                <div className="d-flex align-items-center">
-                  <p className="mb-0">You icon : </p>
-                  <ImageWrapper
-                    src={
-                      player?.player1 === session?.id
-                        ? "/images/x.png"
-                        : "/images/o.png"
-                    }
-                    width="40px"
-                    height="40px"
-                    notPlaceholder={false}
-                  />
+              </Col>
+              <Col xs={12} className="text-center">
+                <div>
+                  <Button variant="secondary" onClick={() => handleJoinMatch()}>
+                    {t("label.bot")}
+                    <span className="d-flex">
+                      {Array(3)
+                        .fill(null)
+                        .map((_, i) => (
+                          <ImageWrapper
+                            key={i}
+                            src="/images/stack.png"
+                            width="20px"
+                            height="20px"
+                            className={classNames(
+                              (session?.user?.botWinStack ?? 0) > i
+                                ? ""
+                                : "grayscale"
+                            )}
+                          />
+                        ))}
+                    </span>
+                  </Button>
                 </div>
               </Col>
-              <Col xs={12}>
-                <hr />
+            </Row>
+          </Container>
+        )}
+
+        {step === 1 && (
+          <Container>
+            <Row>
+              <Col xs={12} className="text-center">
+                <h2>{formatTime(timeCounter)}</h2>
+              </Col>
+              <Col xs={12} className="text-center">
+                <Button onClick={handleLeave}>{t("label.leave")}</Button>
               </Col>
             </Row>
-            <Row className={classNames(Style["board-game"])}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_slot: number) => (
-                <Col
-                  xs={4}
-                  key={_slot}
-                  onClick={() => {
-                    const _check = getValueSlot(_slot)
-                    if (_check) {
-                      return
-                    }
-                    handleSelectSlot(_slot)
-                  }}
-                >
-                  <div className="ratio ratio-1x1">
-                    <div className=" d-flex justify-content-center align-items-center">
-                      {/* {_slot} */}
-                      {getValueSlot(_slot) && (
-                        <ImageWrapper src={getValueSlot(_slot)} />
-                      )}
-                    </div>
+          </Container>
+        )}
+
+        {(step === 2 || step === 3) && (
+          <Container>
+            <div className={classNames(Style["panel-game"])}>
+              <Row>
+                <Col xs={12} className="d-flex align-items-center flex-column">
+                  <h1 className="mb-0">
+                    {!disabledSlot ? (
+                      <>{t("label.turn.you")}</>
+                    ) : (
+                      <>{t("label.turn.opponent")}</>
+                    )}
+                  </h1>
+                  <div className="d-flex align-items-center">
+                    <p className="mb-0">You icon : </p>
+                    <ImageWrapper
+                      src={
+                        player?.player1 === session?.id
+                          ? "/images/x.png"
+                          : "/images/o.png"
+                      }
+                      width="40px"
+                      height="40px"
+                      notPlaceholder={false}
+                    />
                   </div>
                 </Col>
-              ))}
-            </Row>
-          </div>
-        </Container>
-      )}
+                <Col xs={12}>
+                  <hr />
+                </Col>
+              </Row>
+              <Row className={classNames(Style["board-game"])}>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_slot: number) => (
+                  <Col
+                    xs={4}
+                    key={_slot}
+                    onClick={() => {
+                      const _check = getValueSlot(_slot)
+                      if (_check) {
+                        return
+                      }
+                      handleSelectSlot(_slot)
+                    }}
+                  >
+                    <div className="ratio ratio-1x1">
+                      <div className=" d-flex justify-content-center align-items-center">
+                        {/* {_slot} */}
+                        {getValueSlot(_slot) && (
+                          <ImageWrapper src={getValueSlot(_slot)} />
+                        )}
+                      </div>
+                    </div>
+                  </Col>
+                ))}
+              </Row>
+            </div>
+          </Container>
+        )}
 
-      {step === 3 && (
-        <Container>
-          <Row>
-            <Col xs={12} className="text-center">
-              <h2>{t("label.gameover")}</h2>
-              <h3>
-                {typeof isWinner === "boolean"
-                  ? isWinner
-                    ? t("label.winner")
-                    : t("label.loser")
-                  : t("label.draw")}
-              </h3>
-              <Button onClick={() => setStep(0)}>Ok</Button>
-            </Col>
-          </Row>
-        </Container>
-      )}
-    </section>
+        {/* {step === 3 && (
+          <Container>
+            <Row>
+              <Col xs={12} className="text-center">
+                <h2>{t("label.gameover")}</h2>
+                <h3>
+                  {typeof isWinner === "boolean"
+                    ? isWinner
+                      ? t("label.winner")
+                      : t("label.loser")
+                    : t("label.draw")}
+                </h3>
+                <Button onClick={() => setStep(0)}>Ok</Button>
+              </Col>
+            </Row>
+          </Container>
+        )} */}
+      </section>
+      <ToastWrapper
+        message={
+          <div className="text-center">
+            <h2>{t("label.gameover")}</h2>
+            <h3>
+              {typeof isWinner === "boolean"
+                ? isWinner
+                  ? t("label.winner")
+                  : t("label.loser")
+                : t("label.draw")}
+            </h3>
+          </div>
+        }
+        isShow={isShow}
+        setIsShow={setIsShow}
+      />
+    </>
   )
 }
 

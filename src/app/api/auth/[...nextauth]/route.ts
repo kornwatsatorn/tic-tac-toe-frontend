@@ -21,11 +21,48 @@ const options = {
           if (loginResponse.status === 200 && loginResponse.data) {
             const _data = loginResponse.data.data
             const _user = _data.user
-            console.log(
-              "%csrc/app/api/auth/[...nextauth]/route.ts:24 _user",
-              "color: #007acc;",
-              _user
-            )
+            const _res = {
+              id: _user._id,
+              user: {
+                displayName: _user.displayName,
+                email: _user.email,
+                displayImage: _user.displayImage,
+                point: _user.point,
+                type: _user.type,
+                botWinStack: _user.botWinStack,
+              },
+              accessToken: _data.accessToken,
+              refreshToken: _data.refreshToken,
+            }
+            return _res
+          } else {
+            console.log("%c[...nextauth].ts line:25 error", "color: #007acc;")
+            return null
+          }
+        } catch (error: any) {
+          throw new Error(
+            error.response?.data?.message ?? "An unknown error occurred."
+          )
+        }
+      },
+    }),
+    CredentialsProvider({
+      id: "app-register",
+      credentials: {},
+      async authorize(credentials: any) {
+        try {
+          const loginResponse = await axios.post(
+            `${serverRuntimeConfig.apiBaseUrl}/api/users/register`,
+            {
+              email: credentials.email,
+              password: credentials.password,
+              type: "email",
+              displayName: credentials.displayName,
+            }
+          )
+          if (loginResponse.status === 201 && loginResponse.data) {
+            const _data = loginResponse.data.data
+            const _user = _data.user
             const _res = {
               id: _user._id,
               user: {

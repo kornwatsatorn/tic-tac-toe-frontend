@@ -6,7 +6,8 @@ export const getNestedError = <T>(obj: T, path: string): boolean => {
 }
 
 export const getErrorResponseOnCatch = (error: any) => {
-  return error?.response?.data?.error ?? error?.code ?? error ?? ""
+  console.log("%csrc/utils/index.ts:9 error", "color: #007acc;", error)
+  return error?.response?.data?.error ?? error?.code ?? error.message ?? ""
 }
 
 export const formatTime = (seconds: number): string => {
