@@ -1,27 +1,30 @@
-# Project Title
+## Project Structure of Next.js 14
 
-A brief description of what this project does and who it's for
+#### Directory Structure
 
-## Installation
-
-Instructions for installing the project.
-
-```bash
-yarn
+```
+src/
+└─── app/                 # App entry point
+    └─── (pages)/         # Group folder page
+        └─── layout.tsx   # Main layout
+    └─── api/             # Api route
+        └─── [...path]/   # Api SSR dynamic path
+        └─── auth/        # Api next-auth
+        └─── sse/         # Api for sse (fix path)
+└─── components/          # Component utils
+└─── context/             # Use context (Language, Loading)
+└─── styles/              # Theme.scss for config color theme, globals.css
+└─── types/               # Interface type (session next-auth)
+└─── utils/               # Utility function and default data
+public                    # Asset file
 ```
 
-## Usage
+#### Start App
 
-How to use the project.
+##### Install dependencies
 
-```bash
-yarn dev
-```
+`$ yarn install` or `$ npm install`
 
-## Contributing
+##### Start app
 
-Guidelines for contributing to this project.
-
-## License
-
-Add a license description here.
+`$ yarn start` or `$ npm start`
