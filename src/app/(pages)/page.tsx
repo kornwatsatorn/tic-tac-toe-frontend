@@ -342,7 +342,7 @@ const HomePage = () => {
                   ? isWinner
                     ? t("label.winner")
                     : t("label.loser")
-                  : "draw"}
+                  : t("label.draw")}
               </h3>
               <Button onClick={() => setStep(0)}>Ok</Button>
             </Col>
