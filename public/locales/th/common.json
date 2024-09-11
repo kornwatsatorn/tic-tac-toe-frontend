@@ -28,6 +28,10 @@
     },
     "draw": "เสมอ",
     "displayName": "ชื่อที่แสดง",
-    "pleaseFill": "กรุณากรอก"
+    "pleaseFill": "กรุณากรอก",
+    "rank": "อันดับ",
+    "name": "ชื่อ",
+    "point": "คะแนน",
+    "leaderBoard": "ตารางคะแนน"
   }
 }

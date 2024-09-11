@@ -43,14 +43,14 @@ const FooterWrapper = () => {
               </div>
               <div className="flex-fill ms-2  text-ellipsis">
                 <p className="mb-0 small text-ellipsis">
-                  {session?.user?.displayName} {session?.user?.displayName}{" "}
-                  {session?.user?.displayName} {session?.user?.displayName}
+                  {session?.user?.displayName}
                 </p>
               </div>
             </div>
           </Col>
-          <Col xs={2} md={2} className="text-start">
+          <Col xs={2} md={2} className="text-center">
             <h4 className="mb-0">{session?.user?.point}</h4>
+            <p className="small mb-0">{t("label.point")}</p>
           </Col>
           <Col xs={5} md={6} className="text-end">
             <Button variant="danger" onClick={onclickSignOut}>

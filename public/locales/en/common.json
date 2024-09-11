@@ -28,6 +28,10 @@
     },
     "draw": "Draw",
     "displayName": "Display Name",
-    "pleaseFill": "Please fill"
+    "pleaseFill": "Please fill",
+    "rank": "Rank",
+    "name": "Name",
+    "point": "Point",
+    "leaderBoard": "Leader Board"
   }
 }
