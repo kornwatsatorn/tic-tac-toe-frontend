@@ -344,24 +344,6 @@ const HomePage = () => {
             </div>
           </Container>
         )}
-
-        {/* {step === 3 && (
-          <Container>
-            <Row>
-              <Col xs={12} className="text-center">
-                <h2>{t("label.gameover")}</h2>
-                <h3>
-                  {typeof isWinner === "boolean"
-                    ? isWinner
-                      ? t("label.winner")
-                      : t("label.loser")
-                    : t("label.draw")}
-                </h3>
-                <Button onClick={() => setStep(0)}>Ok</Button>
-              </Col>
-            </Row>
-          </Container>
-        )} */}
       </section>
       <ToastWrapper
         message={
