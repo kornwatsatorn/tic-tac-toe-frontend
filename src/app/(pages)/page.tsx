@@ -11,6 +11,7 @@ import classNames from "classnames"
 import { useSession } from "next-auth/react"
 import { useTranslation } from "react-i18next"
 import ImageWrapper from "@/components/utils/ImageWrapper"
+import { EMatchType } from "@/utils/enum"
 
 interface IPlayer {
   player1: string
@@ -37,23 +38,60 @@ const HomePage = () => {
   const [replay, setReplay] = useState<any[]>([])
   const [player, setPlayer] = useState<IPlayer | null>()
   const [disabledSlot, setDisabledSlot] = useState<boolean>(false)
-  const [isWinner, setIsWinner] = useState<boolean | null>(null)
+  const [isWinner, setIsWinner] = useState<boolean | null | undefined>(
+    undefined
+  )
 
   // methods
-  const handleJoinMatch = async (mode: "player" | "bot" = "player") => {
+  const handleJoinMatch = async (mode: EMatchType = EMatchType.BOT) => {
+    await initMatch(`/match?type=${mode}`)
+  }
+
+  const handleSelectSlot = async (slot: number) => {
+    try {
+      if (disabledSlot) {
+        throw new Error("Opponent turn")
+      }
+      setDisabledSlot(true)
+      const _res = await fetchApi.post("/match/play", {
+        data: { slot, matchId },
+      })
+    } catch (error) {
+      setDisabledSlot(false)
+    }
+  }
+
+  const handleInitMatch = async () => {
+    await initMatch(`/match/init`)
+  }
+
+  const handleLeave = async () => {
+    try {
+      await fetchApi.post("/match/leave", {
+        data: { matchId },
+      })
+    } catch (error) {}
+  }
+
+  // utile
+  const initMatch = async (url: string) => {
     try {
       setLoading(true)
-      setIsWinner(null)
-      const _res = await fetchApi.get("/match")
+      setIsWinner(undefined)
+      const _res = await fetchApi.get(url)
       const _data = _res.data.data.data
-      console.log(
-        "%csrc/app/(pages)/page.tsx:44 _data",
-        "color: #007acc;",
-        _data
-      )
-      sessionStorage.setItem(KMatchId, _data.match._id)
       setMatchId(_data.match._id)
+      setReplay(_data.match.replay)
       if (_data.match.status === "waiting") {
+        const _diffTime =
+          new Date().getTime() - new Date(_data.match.createdAt).getTime()
+        // new Date().getTime() -  new Date('2024-09-11T09:20:40.880Z').getTime()
+        console.log(
+          "%csrc/app/(pages)/page.tsx:79 _diffTime",
+          "color: #007acc;",
+          _diffTime
+        )
+        setTimeCounter(Math.floor(_diffTime / 1000))
         setStep(1)
       } else if (_data.match.status === "playing") {
         updateActiveSlot(_data.currentTurn)
@@ -71,19 +109,6 @@ const HomePage = () => {
     }
   }
 
-  const handleSelectSlot = async (slot: number) => {
-    try {
-      if (disabledSlot) {
-        throw new Error("Opponent turn")
-      }
-      setDisabledSlot(true)
-      await fetchApi.post("/match/play", {
-        data: { slot, matchId },
-      })
-    } catch (error) {}
-  }
-
-  // utile
   const getValueSlot = (slot: number) => {
     let _value = null
     const _find = replay.find((_replay) => _replay.slot === slot)
@@ -101,17 +126,29 @@ const HomePage = () => {
     })
   }
 
-  const updatePointSession = async (point: number) => {
+  const updatePointSession = async (
+    point: number,
+    botWinStack: number | null = null
+  ) => {
+    const _data = {
+      ...session?.user,
+      point: point,
+    }
+    if (botWinStack !== null) {
+      _data.botWinStack = botWinStack
+    }
     await update({
-      user: {
-        ...session?.user,
-        point: point,
-      },
+      user: _data,
     })
   }
   const updateActiveSlot = (player: string) => {
     setDisabledSlot(session?.id !== player)
   }
+
+  // init
+  useEffect(() => {
+    handleInitMatch()
+  }, [])
 
   // watch connect sse
   useEffect(() => {
@@ -131,17 +168,24 @@ const HomePage = () => {
           } else if (data.message === "END") {
             // reset
             if (session?.id === data.match.player1) {
-              updatePointSession(data.point.player1)
+              updatePointSession(data.point.player1, data.stack)
             } else {
               updatePointSession(data.point.player2)
             }
-            setIsWinner(data.match.winner === session?.id)
+
+            if (data.match.winner === null) {
+              setIsWinner(null)
+            } else {
+              setIsWinner(data.match.winner === session?.id)
+            }
             setDisabledSlot(true)
             setReplay([])
             setMatchId("")
             setPlayer(null)
             setStep(3)
             eventSource.close()
+          } else if (data.message === "CANCEL") {
+            setStep(0)
           }
         }
       }
@@ -184,18 +228,34 @@ const HomePage = () => {
             <Col xs={12} className="text-center">
               <Button
                 variant="primary"
-                onClick={() => handleJoinMatch("player")}
+                onClick={() => handleJoinMatch(EMatchType.PLAYER)}
               >
                 {t("label.online")}
               </Button>
             </Col>
             <Col xs={12} className="text-center">
-              <Button
-                variant="secondary"
-                onClick={() => handleJoinMatch("bot")}
-              >
-                {t("label.bot")}
-              </Button>
+              <div>
+                <Button variant="secondary" onClick={() => handleJoinMatch()}>
+                  {t("label.bot")}
+                  <span className="d-flex">
+                    {Array(3)
+                      .fill(null)
+                      .map((_, i) => (
+                        <ImageWrapper
+                          key={i}
+                          src="/images/stack.png"
+                          width="20px"
+                          height="20px"
+                          className={classNames(
+                            (session?.user?.botWinStack ?? 0) > i
+                              ? ""
+                              : "grayscale"
+                          )}
+                        />
+                      ))}
+                  </span>
+                </Button>
+              </div>
             </Col>
           </Row>
         </Container>
@@ -207,6 +267,9 @@ const HomePage = () => {
             <Col xs={12} className="text-center">
               <h2>{formatTime(timeCounter)}</h2>
             </Col>
+            <Col xs={12} className="text-center">
+              <Button onClick={handleLeave}>{t("label.leave")}</Button>
+            </Col>
           </Row>
         </Container>
       )}
@@ -214,10 +277,46 @@ const HomePage = () => {
       {step === 2 && (
         <Container>
           <div className={classNames(Style["panel-game"])}>
-            {!disabledSlot ? <>You</> : <>Opponent</>}
+            <Row>
+              <Col xs={12} className="d-flex align-items-center flex-column">
+                <h1 className="mb-0">
+                  {!disabledSlot ? (
+                    <>{t("label.turn.you")}</>
+                  ) : (
+                    <>{t("label.turn.opponent")}</>
+                  )}
+                </h1>
+                <div className="d-flex align-items-center">
+                  <p className="mb-0">You icon : </p>
+                  <ImageWrapper
+                    src={
+                      player?.player1 === session?.id
+                        ? "/images/x.png"
+                        : "/images/o.png"
+                    }
+                    width="40px"
+                    height="40px"
+                    notPlaceholder={false}
+                  />
+                </div>
+              </Col>
+              <Col xs={12}>
+                <hr />
+              </Col>
+            </Row>
             <Row className={classNames(Style["board-game"])}>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_slot: number) => (
-                <Col xs={4} key={_slot} onClick={() => handleSelectSlot(_slot)}>
+                <Col
+                  xs={4}
+                  key={_slot}
+                  onClick={() => {
+                    const _check = getValueSlot(_slot)
+                    if (_check) {
+                      return
+                    }
+                    handleSelectSlot(_slot)
+                  }}
+                >
                   <div className="ratio ratio-1x1">
                     <div className=" d-flex justify-content-center align-items-center">
                       {/* {_slot} */}
@@ -238,7 +337,13 @@ const HomePage = () => {
           <Row>
             <Col xs={12} className="text-center">
               <h2>{t("label.gameover")}</h2>
-              <h3>{isWinner ? t("label.winner") : t("label.loser")}</h3>
+              <h3>
+                {typeof isWinner === "boolean"
+                  ? isWinner
+                    ? t("label.winner")
+                    : t("label.loser")
+                  : "draw"}
+              </h3>
               <Button onClick={() => setStep(0)}>Ok</Button>
             </Col>
           </Row>

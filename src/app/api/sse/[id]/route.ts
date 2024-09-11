@@ -6,10 +6,6 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  console.log(
-    "%csrc/app/api/sse/[id]/route.ts:8 call sse ====",
-    "color: #007acc;"
-  )
   const { id } = params
   const sseEndpoint = `${serverRuntimeConfig.apiBaseUrl}/api/sse/events/${id}`
 

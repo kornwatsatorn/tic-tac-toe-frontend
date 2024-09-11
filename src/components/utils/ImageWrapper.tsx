@@ -13,6 +13,7 @@ interface IProps {
   className?: string | undefined
   direction?: "center" | "start" | "end"
   id?: string
+  notPlaceholder?: boolean
 }
 
 const ImageWrapper = ({
@@ -24,6 +25,7 @@ const ImageWrapper = ({
   className,
   direction = "start",
   id,
+  notPlaceholder = false,
 }: IProps) => {
   const [loading, setLoading] = useState(true)
   const imageRef = useRef<HTMLImageElement | null>(null)
@@ -55,7 +57,7 @@ const ImageWrapper = ({
       style={{ position: "relative", width: width, height: height }}
       className={classNames(classPosition)}
     >
-      {loading && (
+      {loading && notPlaceholder && (
         <Placeholder
           as="div"
           animation="glow"

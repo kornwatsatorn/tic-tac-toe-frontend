@@ -13,6 +13,7 @@ declare module "next-auth" {
           displayImage: string | null
           point: number
           type: string
+          botWinStack: number
         } & DefaultSession["user"])
       | null
   }

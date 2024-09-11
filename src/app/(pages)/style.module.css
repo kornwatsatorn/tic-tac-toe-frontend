@@ -3,6 +3,7 @@
   width: 100%;
   padding: 1rem;
   background-color: rgba(255, 255, 255, 0.9);
+  margin: 0 auto;
 }
 
 .board-game > div:nth-child(-n + 6) {

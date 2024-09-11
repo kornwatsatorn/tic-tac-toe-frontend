@@ -8,3 +8,8 @@ export enum EFetchApiMethod {
   GET = "GET",
   POST = "POST",
 }
+
+export enum EMatchType {
+  BOT = "BOT",
+  PLAYER = "PLAYER",
+}

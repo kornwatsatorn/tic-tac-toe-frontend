@@ -19,6 +19,11 @@
     "bot": "Bot Mode",
     "gameover": "Game Over",
     "winner": "You win",
-    "loser": "You lose"
+    "loser": "You lose",
+    "leave": "Leave",
+    "turn": {
+      "you": "You turn",
+      "opponent": "Opponent turn"
+    }
   }
 }

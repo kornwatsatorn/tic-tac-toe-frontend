@@ -1,13 +1,16 @@
 :root {
   --height-nav: 80px;
   --height-footer: 54px;
+  --bs-btn-font-family: "Itim", cursive;
 }
-#body {
+body {
+  font-family: "Itim", sans-serif !important;
   background-image: url("/images/background.jpg");
   background-size: cover;
   background-position: center;
   height: 100dvh;
   overflow: hidden;
+  font-weight: 600;
 }
 #navbar-top {
   height: var(--height-nav) !important;
@@ -26,4 +29,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.btn {
+  font-family: "Itim", sans-serif !important;
+}
+
+.grayscale {
+  filter: grayscale(1);
 }

@@ -21,6 +21,11 @@ const options = {
           if (loginResponse.status === 200 && loginResponse.data) {
             const _data = loginResponse.data.data
             const _user = _data.user
+            console.log(
+              "%csrc/app/api/auth/[...nextauth]/route.ts:24 _user",
+              "color: #007acc;",
+              _user
+            )
             const _res = {
               id: _user._id,
               user: {
@@ -29,6 +34,7 @@ const options = {
                 displayImage: _user.displayImage,
                 point: _user.point,
                 type: _user.type,
+                botWinStack: _user.botWinStack,
               },
               accessToken: _data.accessToken,
               refreshToken: _data.refreshToken,
@@ -60,11 +66,6 @@ const options = {
       }
       session.accessToken = token.accessToken
       session.refreshToken = token.refreshToken
-      console.log(
-        "%csrc/app/api/auth/[...nextauth]/route.ts:63 ===  session",
-        "color: #007acc;",
-        session
-      )
       return session
     },
     async jwt({ token, user, trigger, session }: any) {
@@ -80,11 +81,6 @@ const options = {
           ...session.user,
         }
       }
-      console.log(
-        "%csrc/app/api/auth/[...nextauth]/route.ts:78 === token",
-        "color: #007acc;",
-        token
-      )
 
       return token
     },
