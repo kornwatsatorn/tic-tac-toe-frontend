@@ -45,7 +45,7 @@ const LoginPage = () => {
 
       const result = await signIn("app", {
         ...data,
-        redirect: false,
+        redirect: true,
       })
       if (result && result.error) {
         throw new Error(result.error)
@@ -54,7 +54,7 @@ const LoginPage = () => {
           "Login failed. Please check your credentials and try again."
         )
       }
-      router.push("/")
+      // router.push("/")
     } catch (error: any) {
       setErrorMessage(getErrorResponseOnCatch(error))
       setIsShow(true)
