@@ -43,14 +43,11 @@ const LoginPage = () => {
         ...data,
         redirect: false,
       })
-      if (result && result.error) {
-        throw new Error(result.error)
-      } else if (!result?.ok) {
-        throw new Error(
-          "Login failed. Please check your credentials and try again."
-        )
+      if (result?.error) {
+        throw new Error(result?.error)
+      } else if (result?.ok) {
+        router.push("/")
       }
-      router.push("/")
     } catch (error: any) {
       setErrorMessage(getErrorResponseOnCatch(error))
       setIsShow(true)

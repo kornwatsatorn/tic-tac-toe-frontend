@@ -81,6 +81,9 @@ const HomePage = () => {
       setIsWinner(undefined)
       const _res = await fetchApi.get(url)
       const _data = _res.data.data.data
+      if (!_data) {
+        throw new Error("no data")
+      }
       setMatchId(_data.match._id)
       setReplay(_data.match.replay)
       if (_data.match.status === "waiting") {
